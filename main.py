@@ -6,7 +6,6 @@ def solver(n, r=None):
     m = np.zeros((n, n), dtype=int)
     if r:
         rm = np.random.randint(3, size=(n, n))
-        print(rm)
         for i in range(1, n):
             for j in range(i):
                 m[i, j] = rm[i, j]

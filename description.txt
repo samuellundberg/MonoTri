@@ -1,0 +1,23 @@
+The task
+Given a value for n, use 3 colors to label the arcs of Kn (that is, the complete graph with n nodes) so as to
+minimize the number of monochromatic triangles formed.
+
+(Definitions: A complete graph is a graph in which every pair of nodes is connected by an arc. A monochromatic
+triangle is a triangle whose three sides are the same color.)
+
+For example, here is a coloring of K7. It contains 35 triangles, of which 3 are monochromatic (ADE, BCE and CDF).
+Note that this coloring does not minimize the number of monochromatic triangles – it is possible to paint the arcs of
+K7 with 3 colors so that there are fewer than 3 monochromatic triangles.
+
+The Contest
+For each of the 25 values of n in
+{17, 23, 27, 35, 39, 47, 59, 63, 75, 83, 87, 95, 107, 123, 135, 143, 147, 159, 167, 179, 183, 195, 203, 207, 215},
+submit the coloring of Kn that best minimizes the number of monochromatic triangles in the graph.
+
+For each value of n you can submit more than one coloring, but only your best coloring will count.
+
+...
+
+Your submission would therefore look like this:
+
+2, 20, 201, 2002, 21110, 020020

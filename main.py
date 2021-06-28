@@ -1,10 +1,18 @@
 import numpy as np
 
 
-# Makes a matrix represtenting the colored graph
-def solver(n):
+# Makes a matrix representing the colored graph
+def solver(n, r=None):
     m = np.zeros((n, n), dtype=int)
-    m[1, 0] = 2
+    if r:
+        rm = np.random.randint(3, size=(n, n))
+        print(rm)
+        for i in range(1, n):
+            for j in range(i):
+                m[i, j] = rm[i, j]
+
+    else:
+        m[1, 0] = 2
     return m
 
 
@@ -27,19 +35,20 @@ def counter(m):
 
 
 def main(n):
-    colorMatrix = solver(n)
-    print('solution matrix:\n', colorMatrix)
+    color_matrix = solver(n, r=True)
+    # color_matrix = solver(n)
+    print('solution matrix:')
+    print(color_matrix)
     result = []
 
     for i in range(1, n):
         arcs = ''
         for j in range(i):
-            arcs = arcs + str(colorMatrix[i, j])
+            arcs = arcs + str(color_matrix[i, j])
         result.append(arcs)
 
-    monoTris, totTris = counter(colorMatrix)
-    print('monotris = ', monoTris, 'tottris = ', totTris)
-    # print('est tris: ', ???)
+    mono_tris, tot_tris = counter(color_matrix)
+    print('monochromatic triangles = ', mono_tris, ', total triangles = ', tot_tris)
     return result
 
 

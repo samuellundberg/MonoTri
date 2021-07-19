@@ -2,14 +2,18 @@ import numpy as np
 
 
 # Makes a matrix representing the colored graph
+# param n: int representing the size of the graph
+# param r: Bool for whether to use a random solver or not
 def solver(n, r=None):
     m = np.zeros((n, n), dtype=int)
+    # random solver
     if r:
         rm = np.random.randint(3, size=(n, n))
         for i in range(1, n):
             for j in range(i):
                 m[i, j] = rm[i, j]
 
+    # non-random solver. Currently no algorithm in place
     else:
         m[1, 0] = 2
     return m
@@ -33,7 +37,7 @@ def counter(m):
     return count, tot
 
 
-# Takes a list of string and concatenates them to one string, each element separated by ', '
+# Takes a list of strings and concatenates them to one string, each element separated by ', '
 def to_string(list_of_strings):
     concat_string = ''
     for l in list_of_strings:
@@ -41,7 +45,11 @@ def to_string(list_of_strings):
     return concat_string
 
 
-# Makes a content of mcts and the concatenated result_string and writes it to path
+# Stores a result file at path. First line is number of monotris. Second line is the result string of the colored graph.
+# If there is already a file at path it will be overwritten.
+# param path: string for where to store results. "results/X.txt" where X is the size of the Graph
+# param result_string: string representing the graph coloring
+# param mcts: int representing the number of monochromatic triangles in the colored graph
 def my_write(path, result_string, mcts):
     content = str(mcts) + '\n' + to_string(result_string)
     file = open(path, "w")
@@ -65,7 +73,7 @@ def store_results(size, result_string, monotris):
                 print('found new best score of: ', monotris, ' for size: ', n)
                 my_write(path, result_string, monotris)
             else:
-                print('did not beat old solution of: ', ref)
+                print('did not beat old solution of: ', ref, ' for size: ', n)
         else:
             print('Weird file at path: ', path)
     except IOError:

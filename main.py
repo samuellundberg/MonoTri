@@ -4,6 +4,7 @@ import time
 
 # Greedy graph coloring algorithm that for each arc sets the smallest color
 # it can without making a monochromatic triangle. Makes sense to me
+# edit: it should aim to make tricolored graphs
 def greedy(n):
     m = np.zeros((n, n), dtype=int)
     # m[2, 0] = 1
@@ -18,6 +19,30 @@ def greedy(n):
                 if m[i - 1, x] == m[i, x]:
                     penalty[m[i - 1, x]] += 1
             m[i, j] = penalty.index(min(penalty))
+
+    print(m)
+    return m
+
+# Now I want penalty 5 for mono and p 1 for non tricollor
+def greedy2(n):
+    m = np.zeros((n, n), dtype=int)
+    for i in range(1, n):
+        m[i, 0] = (i-1) % 3
+        for j in range(1, i):
+            # i punkten (i, j) tittar jag i {(i, x), (j, x)}, x in [0:j-1]
+            # om ix == jx så får färgen p=5. i alla fall får färgen vi tittade på p =1
+            penalty = [0, 0, 0]
+            for x in range(j):
+                if m[i, x] == m[j, x]:
+                    penalty[m[i, x]] += 100
+                else:
+                    penalty[m[i, x]] += 1
+                    penalty[m[j, x]] += 1
+            for y in range(i):
+                penalty[m[y,j]] += 5
+            m[i, j] = penalty.index(min(penalty))
+            # if j == 1:
+                # print(penalty)
 
     print(m)
     return m
@@ -40,7 +65,7 @@ def solver(n, r=None):
     # non-random solver. Currently no algorithm in place
     else:
         print('running greedy algorithm')
-        m = greedy(n)
+        m = greedy2(n)
     return m
 
 
@@ -130,7 +155,7 @@ def main(n, algo):
 
 # make the code run for lists
 start = time.time()
-n = 7
+n = 17
 iterations = 1
 res = ''
 score = 1e8

@@ -1,13 +1,37 @@
 import numpy as np
+import time
+
+
+# Greedy graph coloring algorithm that for each arc sets the smallest color
+# it can without making a monochromatic triangle. Makes sense to me
+def greedy(n):
+    m = np.zeros((n, n), dtype=int)
+    # m[2, 0] = 1
+    # m[2, 1] = 2
+    for i in range(1, n):
+        m[i, 0] = i % 3
+        for j in range(1, i):
+            # i punkten (i, j) ska du titta i punkterna (i - 1, x) & (i, x) för alla x i [0, j - 1].
+            # men hur ska jag sedan välja färg? välj färg att förbjuda? minuspoäng?
+            penalty = [0, 0, 0]
+            for x in range(j):
+                if m[i - 1, x] == m[i, x]:
+                    penalty[m[i - 1, x]] += 1
+            m[i, j] = penalty.index(min(penalty))
+
+    print(m)
+    return m
 
 
 # Makes a matrix representing the colored graph
 # param n: int representing the size of the graph
 # param r: Bool for whether to use a random solver or not
+# complexity = n2
 def solver(n, r=None):
-    m = np.zeros((n, n), dtype=int)
     # random solver
     if r:
+        print('running random solver')
+        m = np.zeros((n, n), dtype=int)
         rm = np.random.randint(3, size=(n, n))
         for i in range(1, n):
             for j in range(i):
@@ -15,26 +39,26 @@ def solver(n, r=None):
 
     # non-random solver. Currently no algorithm in place
     else:
-        m[1, 0] = 2
+        print('running greedy algorithm')
+        m = greedy(n)
     return m
 
 
 # counts the number of monochromatic triangles in the graph
+# complexity = n3
 def counter(m):
     n = len(m)
     count = 0
-    tot = 0
 
     for a in range(n):
         for b in range(a+1, n):
             for c in range(b+1, n):
-                tot += 1
                 # print('looking at this triangle: ', a, b, c)
                 if (m[b, a] == m[c, a]) and (m[b, a] == m[c, b]):
                     # print('adding onto current c. c = ', count)
                     count += 1
 
-    return count, tot
+    return count
 
 
 # Takes a list of strings and concatenates them to one string, each element separated by ', '
@@ -81,27 +105,53 @@ def store_results(size, result_string, monotris):
         my_write(path, result_string, monotris)
 
 
-def main(n):
-    color_matrix = solver(n, r=True)
+def main(n, algo):
+    startsolve = time.time()
+    color_matrix = solver(n, r=algo)
     # color_matrix = solver(n)
-    print('solution matrix:')
-    print(color_matrix)
+    # print('solution matrix:')
+    # print(color_matrix)
     result = []
+    solvetime = time.time()
 
     for i in range(1, n):
         arcs = ''
         for j in range(i):
             arcs = arcs + str(color_matrix[i, j])
         result.append(arcs)
+    startcount = time.time()
+    mono_tris = counter(color_matrix)
+    counttime = time.time()
+    # print('monochromatic triangles = ', mono_tris, ', total triangles = ', tot_tris)
+    # print('time to solve = ', solvetime - startsolve, 'time to count = ', counttime - startcount)
 
-    mono_tris, tot_tris = counter(color_matrix)
-    print('monochromatic triangles = ', mono_tris, ', total triangles = ', tot_tris)
     return result, mono_tris
 
 
 # make the code run for lists
-n = 17
-res, score = main(n)
+start = time.time()
+n = 7
+iterations = 1
+res = ''
+score = 1e8
+algo = False
+
+for iter in range(iterations):
+    r, s = main(n, algo)
+    if s < score:
+        score = s
+        res = r
+
+# res, score = main(n)
+print('monochromatic triangles = ', score)
+
 print('solution string: ', res)
 
 store_results(n, res, score)
+print('full procedure ran in ', time.time() - start, ' seconds')
+
+trianglesingraph = int(n * (n - 1) * (n - 2) / 6)
+arcsingrapgh = int(n * (n - 1) / 2)
+totalstates = 3 ** arcsingrapgh
+
+print('tris = ', trianglesingraph, ' arcs = ', arcsingrapgh, ' states = ', totalstates)

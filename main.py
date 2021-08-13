@@ -21,26 +21,65 @@ def greedy(n):
 # Improvement on greedy. This one also strives for tri-collored graphs and evenly distributed arcs to each node
 def greedy2(n):
     m = np.zeros((n, n), dtype=int)
+    p1 = 100
+    p2 = 1
+    p3 = 1
+    number_count = [0, 0, 0]
     for i in range(1, n):
         m[i, 0] = (i-1) % 3
         for j in range(1, i):
             # i punkten (i, j) tittar jag i {(i, x), (j, x)}, x in [0:j-1]
-            # om ix == jx så får färgen p=5. i alla fall får färgen vi tittade på p =1
+            # om ix == jx så får färgen p=5. i alla fall får färgen vi tittade på p = 1
             penalty = [0, 0, 0]
             for x in range(j):
                 if m[i, x] == m[j, x]:
-                    penalty[m[i, x]] += 100
+                    penalty[m[i, x]] += p1
                 else:
-                    penalty[m[i, x]] += 1
-                    penalty[m[j, x]] += 1
+                    penalty[m[i, x]] += p2
+                    penalty[m[j, x]] += p2
+            # vi ska också kolla på de andra färgerna i punkten j. de ser vi i (j, y), y in [0:j-1]
+            # och även (z, j), z in [j + 1, i - 1]
             for y in range(i):
-                penalty[m[y, j]] += 3
-            m[i, j] = penalty.index(min(penalty))
-            # if i == 9 and j == 6:
-                # print(penalty)
+                if y < j:
+                    penalty[m[j, y]] += p3      # 3
+                if y > j:
+                    penalty[m[y, j]] += p3
+
+            # m[i, j] = penalty.index(min(penalty))
+
+            small = min(penalty)
+            p = False
+            if penalty[0] == penalty[1] and penalty[0] == penalty[2]:
+                temp = number_count.index(min(number_count))
+
+            elif penalty[0] == small and penalty[1] == small:
+                temp = 0
+                if number_count[0] > number_count[1]:
+                    temp = 1
+
+            elif penalty[1] == small and penalty[2] == small:
+                temp = 1
+                if number_count[1] > number_count[2]:
+                    temp = 2
+
+            elif penalty[0] == small and penalty[2] == small:
+                temp = 0
+                if number_count[0] > number_count[2]:
+                    temp = 2
+
+            else:
+                temp = penalty.index(small)
+                p = False
+
+            if p:
+                print('pen: ', penalty, '\nsat: ', number_count, '\ntemp: ', temp, '\n')
+            m[i, j] = temp
+            number_count[temp] += 1
+
+            if j == -3:
+                print(penalty)
 
     return m
-
 
 # Makes a matrix representing the colored graph
 # param n: int representing the size of the graph
@@ -48,10 +87,10 @@ def greedy2(n):
 # complexity = n2
 def solver(n, a=None):
     if a == 'greedy':
-        print('running greedy algorithm')
+        # print('running greedy algorithm')
         m = greedy(n)
     elif a == 'greedy2':
-        print('running improved greedy algorithm')
+        # print('running improved greedy algorithm')
         m = greedy2(n)
     else:
         print('running random solver')
@@ -148,7 +187,7 @@ def main(n, algo):
 
 
 start = time.time()
-N = [7]
+N = [17]
 # N = [17, 23, 27, 35]
 # N = [17, 23, 27, 35, 39, 47, 59, 63, 75, 83, 87, 95, 107, 123, 135, 143, 147, 159, 167, 179, 183, 195, 203, 207, 215]
 algo = 'greedy2'

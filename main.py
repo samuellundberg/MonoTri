@@ -3,27 +3,22 @@ import time
 
 
 # Greedy graph coloring algorithm that for each arc sets the smallest color
-# it can without making a monochromatic triangle. Makes sense to me
-# edit: it should aim to make tricolored graphs
+# it can without making a monochromatic triangle. Naive apporach
+# Does not work well.
 def greedy(n):
     m = np.zeros((n, n), dtype=int)
-    # m[2, 0] = 1
-    # m[2, 1] = 2
     for i in range(1, n):
         m[i, 0] = i % 3
         for j in range(1, i):
-            # i punkten (i, j) ska du titta i punkterna (i - 1, x) & (i, x) för alla x i [0, j - 1].
-            # men hur ska jag sedan välja färg? välj färg att förbjuda? minuspoäng?
             penalty = [0, 0, 0]
             for x in range(j):
                 if m[i - 1, x] == m[i, x]:
                     penalty[m[i - 1, x]] += 1
             m[i, j] = penalty.index(min(penalty))
-
-    print(m)
     return m
 
-# Now I want penalty 5 for mono and p 1 for non tricollor
+
+# Improvement on greedy. This one also strives for tri-collored graphs and evenly distributed arcs to each node
 def greedy2(n):
     m = np.zeros((n, n), dtype=int)
     for i in range(1, n):
@@ -39,22 +34,26 @@ def greedy2(n):
                     penalty[m[i, x]] += 1
                     penalty[m[j, x]] += 1
             for y in range(i):
-                penalty[m[y,j]] += 5
+                penalty[m[y, j]] += 3
             m[i, j] = penalty.index(min(penalty))
-            # if j == 1:
+            # if i == 9 and j == 6:
                 # print(penalty)
 
-    print(m)
     return m
 
 
 # Makes a matrix representing the colored graph
 # param n: int representing the size of the graph
-# param r: Bool for whether to use a random solver or not
+# param a: algorithm used to collor graph. defaults to random
 # complexity = n2
-def solver(n, r=None):
-    # random solver
-    if r:
+def solver(n, a=None):
+    if a == 'greedy':
+        print('running greedy algorithm')
+        m = greedy(n)
+    elif a == 'greedy2':
+        print('running improved greedy algorithm')
+        m = greedy2(n)
+    else:
         print('running random solver')
         m = np.zeros((n, n), dtype=int)
         rm = np.random.randint(3, size=(n, n))
@@ -62,10 +61,6 @@ def solver(n, r=None):
             for j in range(i):
                 m[i, j] = rm[i, j]
 
-    # non-random solver. Currently no algorithm in place
-    else:
-        print('running greedy algorithm')
-        m = greedy2(n)
     return m
 
 
@@ -74,15 +69,15 @@ def solver(n, r=None):
 def counter(m):
     n = len(m)
     count = 0
-
+    coords = []
     for a in range(n):
         for b in range(a+1, n):
             for c in range(b+1, n):
-                # print('looking at this triangle: ', a, b, c)
                 if (m[b, a] == m[c, a]) and (m[b, a] == m[c, b]):
-                    # print('adding onto current c. c = ', count)
                     count += 1
+                    coords.append(str(a) + ', ' + str(b) + ', ' +str(c))
 
+    # print(coords)
     return count
 
 
@@ -132,8 +127,7 @@ def store_results(size, result_string, monotris):
 
 def main(n, algo):
     startsolve = time.time()
-    color_matrix = solver(n, r=algo)
-    # color_matrix = solver(n)
+    color_matrix = solver(n, a=algo)
     # print('solution matrix:')
     # print(color_matrix)
     result = []
@@ -153,30 +147,24 @@ def main(n, algo):
     return result, mono_tris
 
 
-# make the code run for lists
 start = time.time()
-n = 17
-iterations = 1
-res = ''
-score = 1e8
-algo = False
+N = [7]
+# N = [17, 23, 27, 35]
+# N = [17, 23, 27, 35, 39, 47, 59, 63, 75, 83, 87, 95, 107, 123, 135, 143, 147, 159, 167, 179, 183, 195, 203, 207, 215]
+algo = 'greedy2'
 
-for iter in range(iterations):
+for n in N:
     r, s = main(n, algo)
-    if s < score:
-        score = s
-        res = r
+    print('monochromatic triangles = ', s)
+    # print('solution string: ', r)
 
-# res, score = main(n)
-print('monochromatic triangles = ', score)
+    store_results(n, r, s)
 
-print('solution string: ', res)
+    trianglesingraph = int(n * (n - 1) * (n - 2) / 6)
+    arcsingrapgh = int(n * (n - 1) / 2)
+    # totalstates = 3 ** arcsingrapgh
 
-store_results(n, res, score)
+    # print('tris = ', trianglesingraph, ' arcs = ', arcsingrapgh, '\n')
+    print('\n')
+
 print('full procedure ran in ', time.time() - start, ' seconds')
-
-trianglesingraph = int(n * (n - 1) * (n - 2) / 6)
-arcsingrapgh = int(n * (n - 1) / 2)
-totalstates = 3 ** arcsingrapgh
-
-print('tris = ', trianglesingraph, ' arcs = ', arcsingrapgh, ' states = ', totalstates)

@@ -81,6 +81,25 @@ def greedy2(n):
 
     return m
 
+
+# Divides nodes into 5 groups. Arcs between nodes in the same group is colored 0
+# Arcs between neighbouring groups are colored 1, and 2 if the groups are not neighbouring
+def penta(n):
+    m = np.zeros((n, n), dtype=int)
+    for i in range(1, n):
+        for j in range(0, i):
+            if i % 5 == j % 5:          # Same group, leave the color as 0
+                continue
+            elif abs(i % 5 - j % 5) == 1 or abs(i % 5 - j % 5) == 4:
+                m[i, j] = 1
+            elif abs(i % 5 - j % 5) == 2 or abs(i % 5 - j % 5) == 3:
+                m[i, j] = 2
+            else:
+                print('you are bad at math')
+
+    return m
+
+
 # Makes a matrix representing the colored graph
 # param n: int representing the size of the graph
 # param a: algorithm used to collor graph. defaults to random
@@ -92,6 +111,8 @@ def solver(n, a=None):
     elif a == 'greedy2':
         # print('running improved greedy algorithm')
         m = greedy2(n)
+    elif a == 'penta':
+        m = penta(n)
     else:
         print('running random solver')
         m = np.zeros((n, n), dtype=int)
@@ -190,7 +211,8 @@ start = time.time()
 N = [17]
 # N = [17, 23, 27, 35]
 # N = [17, 23, 27, 35, 39, 47, 59, 63, 75, 83, 87, 95, 107, 123, 135, 143, 147, 159, 167, 179, 183, 195, 203, 207, 215]
-algo = 'greedy2'
+# algo = 'greedy2'
+algo = 'penta'
 
 for n in N:
     r, s = main(n, algo)

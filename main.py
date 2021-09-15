@@ -84,6 +84,7 @@ def greedy2(n):
 
 # Divides nodes into 5 groups. Arcs between nodes in the same group is colored 0
 # Arcs between neighbouring groups are colored 1, and 2 if the groups are not neighbouring
+# This gives the optimal solution for n >= 20
 def penta(n):
     m = np.zeros((n, n), dtype=int)
     for i in range(1, n):
@@ -96,6 +97,63 @@ def penta(n):
                 m[i, j] = 2
             else:
                 print('you are bad at math')
+
+    return m
+
+
+# Creates a fully connected tri-colored graph no monochromatic triangles for all n < 17
+# by dividing nodes into three groups with an internal rang. In n = 16 the node is place in the middle.
+# see https://upload.wikimedia.org/wikipedia/commons/5/51/K_16_partitioned_into_three_Clebsch_graphs.svg
+# if n > 16 it will keep stacking nodes in the middle and will get many mono tris for n >> 16
+# However this gives the optimal solution for n <= 17
+def perfect16(n):
+    m = np.zeros((n, n), dtype=int)
+    for i in range(15):
+        if i == n:
+            break
+        for j in range(i):
+            im3 = i % 3
+            id3 = int(i / 3)
+            jm3 = j % 3
+            jd3 = int(j / 3)
+            diff = id3 - jd3
+
+            if im3 == jm3:
+                if im3 == 1:
+                    if diff == 1 or diff == 4:
+                        m[i, j] = 0
+                    else:
+                        m[i, j] = 2
+
+                if im3 == 0:
+                    if diff == 1 or diff == 4:
+                        m[i, j] = 1
+                    else:
+                        m[i, j] = 0
+
+                if im3 == 2:
+                    if diff == 1 or diff == 4:
+                        m[i, j] = 2
+                    else:
+                        m[i, j] = 1
+
+                continue
+
+            if diff == 0:
+                m[i, j] = (im3 + jm3 - 1) % 3
+            elif diff == 1 or diff == 4:
+                m[i, j] = (im3 + jm3) % 3
+            elif diff == 2 or diff == 3:
+                m[i, j] = (im3 + jm3 + 1) % 3
+
+    for i in range(15, n):
+        for j in range(i):
+            if j % 3 == 0:
+                m[i, j] = 2
+            if j % 3 == 1:
+                m[i, j] = 1
+            if j % 3 == 2:
+                m[i, j] = 0
 
     return m
 
@@ -113,6 +171,8 @@ def solver(n, a=None):
         m = greedy2(n)
     elif a == 'penta':
         m = penta(n)
+    elif a == 'perfect16':
+        m = perfect16(n)
     else:
         print('running random solver')
         m = np.zeros((n, n), dtype=int)
@@ -135,7 +195,7 @@ def counter(m):
             for c in range(b+1, n):
                 if (m[b, a] == m[c, a]) and (m[b, a] == m[c, b]):
                     count += 1
-                    coords.append(str(a) + ', ' + str(b) + ', ' +str(c))
+                    coords.append((a, b, c))
 
     # print(coords)
     return count
@@ -212,7 +272,7 @@ N = [17]
 # N = [17, 23, 27, 35]
 # N = [17, 23, 27, 35, 39, 47, 59, 63, 75, 83, 87, 95, 107, 123, 135, 143, 147, 159, 167, 179, 183, 195, 203, 207, 215]
 # algo = 'greedy2'
-algo = 'penta'
+algo = 'perfect16'
 
 for n in N:
     r, s = main(n, algo)

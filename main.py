@@ -158,10 +158,9 @@ def perfect16(n):
     return m
 
 
-# Makes a matrix representing the colored graph
+# Calls the desired algo, if non given it returns a random solution
 # param n: int representing the size of the graph
 # param a: algorithm used to collor graph. defaults to random
-# complexity = n2
 def solver(n, a=None):
     if a == 'greedy':
         # print('running greedy algorithm')
@@ -223,6 +222,7 @@ def my_write(path, result_string, mcts):
 
 # If the number of monotris is lower than the recorded number for the given size the
 # result_string number of monotris is saved to file named 'size'.txt in the results folder
+# runs my_write internally
 def store_results(size, result_string, monotris):
     path = "results/" + str(size) + ".txt"
 
